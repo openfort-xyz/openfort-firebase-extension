@@ -23,8 +23,8 @@ icon: icon.png
 
 license: Apache-2.0
 
-sourceUrl: https://github.com/openfort-xyz/openfort-firebase-extensions/tree/master/firestore-openfort-transactions
-releaseNotesUrl: https://github.com/openfort-xyz/openfort-firebase-extensions/tree/master/firestore-openfort-transactions/CHANGELOG.md
+sourceUrl: https://github.com/openfort-xyz/openfort-firebase-extensions/tree/master/firestore-openfort-extension
+releaseNotesUrl: https://github.com/openfort-xyz/openfort-firebase-extensions/tree/master/firestore-openfort-extension/CHANGELOG.md
 
 author:
   authorName: Openfort
