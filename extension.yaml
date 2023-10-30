@@ -1,0 +1,235 @@
+# Copyright 2023 Alamas Labs, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    https://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+name: firestore-openfort-transactions
+version: 0.0.1
+specVersion: v1beta
+
+displayName: Manage Smart Wallets with Openfort
+description: Controls management of a smart wallet to send blockchain transactions.
+
+icon: icon.png
+
+license: Apache-2.0
+
+sourceUrl: https://github.com/openfort-xyz/openfort-firebase-extensions/tree/master/firestore-openfort-transactions
+releaseNotesUrl: https://github.com/openfort-xyz/openfort-firebase-extensions/tree/master/firestore-openfort-transactions/CHANGELOG.md
+
+author:
+  authorName: Openfort
+  url: https://openfort.xyz
+
+contributors:
+  - authorName: Jaume Alavedra
+    url: https://twitter.com/jamalavedra
+  - authorName: Firebase
+    url: https://firebase.google.com
+
+billingRequired: true # this extension makes requests to a third party API (Openfort)
+
+externalServices:
+  - name: Openfort
+    pricingUri: https://openfort.xyz/
+
+roles:
+  - role: firebaseauth.admin
+    reason: >-
+      Allows the extension to set custom claims for users.
+  - role: datastore.user
+    reason: >-
+      Allows the extension to store players in Cloud Firestore.
+
+resources:
+  - name: createPlayer
+    type: firebaseextensions.v1beta.function
+    description: >-
+      Creates an Openfort player object when a new user signs up.
+    properties:
+      location: ${LOCATION}
+      runtime: nodejs18
+      eventTrigger:
+        eventType: providers/firebase.auth/eventTypes/user.create
+        resource: projects/${PROJECT_ID}
+
+  - name: createTransactionIntent
+    type: firebaseextensions.v1beta.function
+    description: >-
+      Creates a Transaction intent.
+    properties:
+      location: ${LOCATION}
+      runtime: nodejs18
+      eventTrigger:
+        eventType: providers/cloud.firestore/eventTypes/document.create
+        resource: projects/${PROJECT_ID}/databases/(default)/documents/${PLAYERS_COLLECTION}/{uid}/transaction_intents/{id}
+
+  - name: handleWebhookEvents
+    type: firebaseextensions.v1beta.function
+    description: >-
+      Handles Openfort webhook events to keep statuses in sync.
+    properties:
+      location: ${LOCATION}
+      runtime: nodejs18
+      httpsTrigger: {}
+
+  - name: onUserDeleted
+    type: firebaseextensions.v1beta.function
+    description: >-
+      Deletes the Openfort player object when the user is deleted in Firebase Authentication.
+    properties:
+      location: ${LOCATION}
+      runtime: nodejs18
+      eventTrigger:
+        eventType: providers/firebase.auth/eventTypes/user.delete
+        resource: projects/${PROJECT_ID}
+
+  - name: onPlayerDataDeleted
+    type: firebaseextensions.v1beta.function
+    description: >-
+      Deletes the Openfort player object when the player doc in Cloud Firestore is deleted.
+    properties:
+      location: ${LOCATION}
+      runtime: nodejs18
+      eventTrigger:
+        eventType: providers/cloud.firestore/eventTypes/document.delete
+        resource: projects/${PROJECT_ID}/databases/(default)/documents/${PLAYERS_COLLECTION}/{uid}
+
+params:
+  - param: LOCATION
+    label: Cloud Functions deployment location
+    description: >-
+      Where do you want to deploy the functions created for this extension?
+      You usually want a location close to your database.
+      For help selecting a location, refer to the
+      [location selection guide](https://firebase.google.com/docs/functions/locations).
+    type: select
+    options:
+      - label: Iowa (us-central1)
+        value: us-central1
+      - label: South Carolina (us-east1)
+        value: us-east1
+      - label: Northern Virginia (us-east4)
+        value: us-east4
+      - label: Oregon (us-west1)
+        value: us-west1
+      - label: Los Angeles (us-west2)
+        value: us-west2
+      - label: Salt Lake City (us-west3)
+        value: us-west3
+      - label: Las Vegas (us-west4)
+        value: us-west4
+      - label: Warsaw (europe-central2)
+        value: europe-central2
+      - label: Belgium (europe-west1)
+        value: europe-west1
+      - label: London (europe-west2)
+        value: europe-west2
+      - label: Frankfurt (europe-west3)
+        value: europe-west3
+      - label: Zurich (europe-west6)
+        value: europe-west6
+      - label: Hong Kong (asia-east2)
+        value: asia-east2
+      - label: Tokyo (asia-northeast1)
+        value: asia-northeast1
+      - label: Osaka (asia-northeast2)
+        value: asia-northeast2
+      - label: Seoul (asia-northeast3)
+        value: asia-northeast3
+      - label: Mumbai (asia-south1)
+        value: asia-south1
+      - label: Jakarta (asia-southeast2)
+        value: asia-southeast2
+      - label: Montreal (northamerica-northeast1)
+        value: northamerica-northeast1
+      - label: Sao Paulo (southamerica-east1)
+        value: southamerica-east1
+      - label: Sydney (australia-southeast1)
+        value: australia-southeast1
+    default: us-central1
+    required: true
+    immutable: true
+
+  - param: PLAYERS_COLLECTION
+    label: Player details
+    description: >-
+      What is the path to the Cloud Firestore collection where the extension should store Openfort player details?
+      This can be the location of an existing user collection, the extension will not overwrite your existing data but rather merge the Openfort data into your existing `uid` docs.
+    default: players
+    validationRegex: "^[^/]+(/[^/]+/[^/]+)*$"
+    validationErrorMessage: Firestore collection paths must be an odd number of segments separated by slashes, e.g. "path/to/collection".
+    required: true
+
+  - param: OPENFORT_CONFIG_COLLECTION
+    label: Openfort configuration collection
+    description: >-
+      What is the path to the Cloud Firestore collection where the extension should store Openfort configuration?
+    default: configuration
+    validationRegex: "^[^/]+(/[^/]+/[^/]+)*$"
+    validationErrorMessage: Firestore collection paths must be an odd number of segments separated by slashes, e.g. "path/to/collection".
+    required: false
+
+  - param: SYNC_USERS_ON_CREATE
+    label: Sync new users to Openfort players and Cloud Firestore
+    description: >-
+      Do you want to automatically sync new users to player objects in Openfort?
+      If set to 'Sync', the extension will create a new player object in Openfort
+      and add a new doc to the player collection in Firestore when a new user signs up via Firebase Authentication.
+      If set to 'Do not sync' (default), the extension will create the player object "on the fly" with the first transaction intent creation.
+    type: select
+    options:
+      - label: "Do not sync"
+        value: "Do not sync"
+      - label: "Sync"
+        value: "Sync"
+    default: "Do not sync"
+    required: true
+
+  - param: DELETE_OPENFORT_PLAYERS
+    label: Automatically delete Openfort players objects
+    description: >-
+      Do you want to automatically delete player objects in Openfort?
+      When a user is deleted in Firebase Authentication or in Cloud Firestore and set to 'Auto delete'
+      the extension will delete their player object in Openfort.
+    type: select
+    options:
+      - label: "Do not delete"
+        value: "Do not delete"
+      - label: "Auto delete"
+        value: "Auto delete"
+    default: "Do not delete"
+    required: true
+
+  - param: OPENFORT_API_KEY
+    label: Openfort secret API key
+    type: secret
+    description: >-
+      What is your Openfort API key?
+      Get your [API key](https://www.openfort.xyz/docs/guides/platform/keys)
+    example: sk_live_1234567890
+    required: true
+
+  - param: CREATE_TRANSACTION_INTENT_MIN_INSTANCES
+    label: Minimum instances for createTransactionIntent function
+    description: >-
+      Set the minimum number of function instances that should be always be available to create Transaction Intents.
+      This number can be adjusted to reduce cold starts and increase the responsiveness
+      of Transaction Intents creation requests. Suggested values are 0 or 1. Please note this setting will likely incur billing costs, see the [Firebase documentation](https://firebase.google.com/docs/functions/manage-functions#reduce_the_number_of_cold_starts) for more information.
+    default: 0
+    required: true
+
+events:
+  - type: com.openfort.v1.transaction_intent.succeeded
+    description: Occurs when a TransactionIntent has successfully completed transaction.
+  - type: com.openfort.v1.transaction_intent.canceled
+    description: Occurs when a TransactionIntent is reverted.
