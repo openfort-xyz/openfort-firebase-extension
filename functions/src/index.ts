@@ -170,10 +170,10 @@ exports.createTransactionIntent = functions
       if (!optimistic) {
         await insertTransactionResponseRecord(transactionIntent);
       }
-      console.log('transactionIntent', transactionIntent.id)
+
       await snap.ref.set(
         {
-          transactionIntentId: transactionIntent.id,
+          id: transactionIntent.id,
           created: Timestamp.now(),
         },
         { merge: true }
@@ -281,7 +281,7 @@ const deleteOpenfortPlayer = async ({
 }) => {
   try {
     // Delete their player object.
-    // await openfort.players.delete({id: openfortId});
+    await openfort.players.delete(openfortId);
     logs.playerDeleted(openfortId);
 
   } catch (error) {

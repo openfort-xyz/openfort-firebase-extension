@@ -68,10 +68,10 @@ describe('createTransactionIntent', () => {
       expect(data.policy).toBe(policy.id);
     });
 
-    test.skip('throws an error when success_url has not been provided', async () => { });
+    test.skip('throws an error when contract has not been provided', async () => { });
 
-    test.skip('throws an error when cancel_url has not been provided', async () => { });
-    test.skip('throws an error when a line items parameter has not been provided', async () => { });
-    test.skip('throws an error when a transaction intent data array parameter has not been provided', async () => { });
+    test.skip('throws an error when policy has not been provided', async () => { });
+    test.skip('throws an error when a chainId has not been provided', async () => { });
+    test.skip('throws an error when a interactions data array parameter has not been provided', async () => { });
   });
 });

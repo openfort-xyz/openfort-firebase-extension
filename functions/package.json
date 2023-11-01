@@ -1,7 +1,7 @@
 {
   "name": "firestore-openfort-transactions",
   "engines": {
-    "node": "14"
+    "node": "18"
   },
   "main": "lib/index.js",
   "scripts": {
@@ -21,7 +21,7 @@
   "author": "Openfort (https://openfort.xyz/)",
   "license": "Apache-2.0",
   "dependencies": {
-    "@openfort/openfort-node": "^0.6.18",
+    "@openfort/openfort-node": "^0.6.20",
     "@types/jest": "^24.9.1",
     "@types/node": "^18.15.3",
     "firebase-admin": "^11.10.1",

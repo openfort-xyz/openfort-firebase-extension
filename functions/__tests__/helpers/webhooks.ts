@@ -1,33 +1,17 @@
 export const setupWebhooks = async (url) => {
-  const stripe = require('stripe')(process.env.OPENFORT_API_KEY);
+  const Openfort = require('@openfort/openfort-node').default;
 
-  const webhook = await stripe.webhookEndpoints.create({
-    url,
-    enabled_events: [
-      'transaction_intent.succeeded',
-      'transaction_intent.canceled',
-    ],
-  });
+  const openfort = new Openfort(process.env.OPENFORT_API_KEY);
+
+  const webhook = await openfort.settings.updateWebhook(url);
 
   return webhook;
 };
 
-export const clearWebhooks = async (id) => {
-  const stripe = require('stripe')(process.env.OPENFORT_API_KEY);
+export const clearWebhooks = async () => {
+  const Openfort = require('@openfort/openfort-node').default;
 
-  return stripe.webhookEndpoints.del(process.env.WEBHOOK_ID);
-};
+  const openfort = new Openfort(process.env.OPENFORT_API_KEY);
 
-export const clearAllWebhooks = async () => {
-  const stripe = require('stripe')(process.env.OPENFORT_API_KEY);
-
-  const webhooks = await stripe.webhookEndpoints.list();
-
-  for await (const webhook of webhooks.data) {
-    if (webhook.url.includes('ngrok.io')) {
-      await stripe.webhookEndpoints.del(webhook.id);
-    }
-  }
-
-  return Promise.resolve();
+  return openfort.settings.removeWebhook();
 };
