@@ -60,7 +60,7 @@ To install this extension, your Firebase project must be on the Blaze (pay-as-yo
 
 * Automatically delete Openfort player objects: Do you want to automatically delete player objects in Openfort? When a user is deleted in Firebase Authentication or in Cloud Firestore and set to 'Auto delete' the extension will delete their player object in Openfort.
 
-* Openfort API key: What is your Openfort API key? [Learn more](https://www.openfort.xyz/docs/guides/platform/keys).
+* Openfort API key: What is your Openfort API key? [Learn more](https://www.openfort.xyz/docs/api-keys).
 
 * Minimum instances for createTransactionIntent function: Set the minimum number of function instances that should be always be available to create Transaction Intents. This number can be adjusted to reduce cold starts and increase the responsiveness of Checkout Session creation requests. Suggested values are 0 or 1. Please note this setting will likely incur billing costs, see the [Firebase documentation](https://firebase.google.com/docs/functions/manage-functions#reduce_the_number_of_cold_starts) for more information.
 
